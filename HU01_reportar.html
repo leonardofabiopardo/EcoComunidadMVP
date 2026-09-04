@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EcoComunidad — MVP</title>
+<style>
+:root{
+  --green:#16834b; --green2:#21a366; --dark:#16352a; --light:#f3f8f5;
+  --line:#dce8e1; --text:#23332c; --muted:#6b7d74; --white:#fff;
+  --danger:#c73b3b; --warning:#c78a15; --blue:#3578c7; --shadow:0 10px 30px rgba(24,53,42,.08);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:#f7faf8;color:var(--text)}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.app{display:flex;min-height:100vh}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:265px;background:#113a2a;color:white;padding:24px 16px;overflow:auto}
+.brand{display:flex;align-items:center;gap:12px;padding:6px 10px 22px}
+.logo{width:42px;height:42px;border-radius:12px;background:#2bb673;display:grid;place-items:center;font-size:23px;font-weight:800}
+.brand h1{font-size:18px;margin:0}.brand small{opacity:.72}
+.nav-title{text-transform:uppercase;font-size:10px;letter-spacing:1.2px;opacity:.55;padding:14px 10px 7px}
+.nav button{width:100%;border:0;background:transparent;color:#eaf6f0;text-align:left;padding:11px 12px;border-radius:10px;display:flex;gap:10px;align-items:center;margin:3px 0}
+.nav button:hover,.nav button.active{background:rgba(255,255,255,.12)}
+.main{margin-left:265px;width:calc(100% - 265px)}
+.topbar{position:sticky;top:0;z-index:5;background:rgba(247,250,248,.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding:14px 32px;display:flex;justify-content:space-between;align-items:center}
+.topbar h2{margin:0;font-size:18px}.role{background:#e6f5ec;color:#136d3f;padding:8px 11px;border-radius:999px;font-size:12px;font-weight:700}
+.content{max-width:1250px;margin:auto;padding:30px}
+.view{display:none}.view.active{display:block}
+.hero{background:linear-gradient(135deg,#dff5e8,#f5fbf7);border:1px solid #cfe8d9;border-radius:22px;padding:32px;display:flex;justify-content:space-between;gap:20px;align-items:center;margin-bottom:24px}
+.hero h1{font-size:31px;line-height:1.1;margin:0 0 10px;color:var(--dark)}.hero p{margin:0;color:var(--muted);max-width:700px}
+.hero-icon{font-size:80px}
+.grid{display:grid;gap:18px}.grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}.grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}.grid-4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.card{background:var(--white);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:20px}
+.card h3{margin:0 0 7px}.card p{color:var(--muted);line-height:1.5}
+.kpi{display:flex;justify-content:space-between;align-items:flex-start}.kpi .icon{font-size:26px}.kpi .number{font-size:29px;font-weight:800;color:var(--dark)}
+.badge{display:inline-flex;padding:5px 9px;border-radius:999px;font-size:11px;font-weight:800}.pending{background:#fff4d7;color:#936400}.progress{background:#e4efff;color:#2d68ad}.done{background:#e2f6e9;color:#137442}
+label{font-weight:700;font-size:13px;display:block;margin:0 0 7px}
+.field{margin-bottom:15px}input,select,textarea{width:100%;padding:12px 13px;border:1px solid #ceddd4;border-radius:10px;outline:none;background:#fff}textarea{min-height:115px;resize:vertical}input:focus,select:focus,textarea:focus{border-color:#46aa74;box-shadow:0 0 0 3px rgba(70,170,116,.12)}
+.btn{border:0;border-radius:10px;padding:12px 15px;font-weight:800}.btn-primary{background:var(--green);color:#fff}.btn-secondary{background:#e8f3ed;color:#13643a}.btn-ghost{background:#fff;border:1px solid var(--line);color:var(--text)}.btn-danger{background:#fdeaea;color:#a72e2e}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap}
+.note{border-left:4px solid var(--green);padding:12px 14px;background:#f0f9f3;border-radius:8px;color:#315a45}
+.alert{padding:14px;border-radius:10px;margin:12px 0;font-weight:700}.alert-success{background:#e9f8ef;color:#177143}.alert-info{background:#edf4ff;color:#2d68ae}
+.empty{color:var(--muted);text-align:center;padding:28px}
+.preview{width:100%;max-height:250px;object-fit:cover;border-radius:12px;border:1px dashed #bdd3c6;margin-top:8px}
+.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:12px}
+table{width:100%;border-collapse:collapse;background:#fff}th,td{padding:12px 13px;text-align:left;border-bottom:1px solid #edf2ee;font-size:13px}th{background:#f4f8f5;font-size:12px;color:#53675e}tr:last-child td{border-bottom:0}
+.map{height:430px;border-radius:16px;position:relative;overflow:hidden;border:1px solid #c9dcd1;
+background:
+linear-gradient(30deg,transparent 48%,#d5e8dc 49%,#d5e8dc 51%,transparent 52%),
+linear-gradient(150deg,transparent 48%,#d5e8dc 49%,#d5e8dc 51%,transparent 52%),
+linear-gradient(#eef7f1,#ddeee5)}
+.map:before,.map:after{content:"";position:absolute;background:rgba(255,255,255,.8);border:2px solid #b9d7c4;border-radius:50%}
+.map:before{width:280px;height:170px;left:20%;top:31%}.map:after{width:190px;height:120px;left:58%;top:8%}
+.marker{position:absolute;width:33px;height:33px;background:#da433e;color:#fff;border-radius:50% 50% 50% 0;transform:rotate(-45deg);display:grid;place-items:center;box-shadow:0 5px 12px rgba(0,0,0,.18);z-index:2}
+.marker span{transform:rotate(45deg);font-size:16px}
+.m1{left:24%;top:36%}.m2{left:51%;top:53%}.m3{left:69%;top:30%}.m4{left:76%;top:67%}
+.map-legend{position:absolute;right:14px;bottom:14px;background:rgba(255,255,255,.93);padding:10px 12px;border-radius:10px;font-size:11px;box-shadow:var(--shadow)}
+.list{display:grid;gap:10px}.list-item{border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;justify-content:space-between;gap:15px;align-items:center}
+
+/* Historial de recolección — diseño inspirado en la referencia */
+.history-card{margin-top:18px;padding:24px;background:#fff;border:1px solid #e2e7e4;border-radius:22px;box-shadow:0 12px 28px rgba(25,56,43,.06)}
+.history-head h3{font-size:30px;letter-spacing:-.6px;margin:0 0 6px;color:#17221d}
+.history-head p{margin:0;color:#6e7d76;font-size:16px}
+.history-filters{display:flex;gap:10px;overflow-x:auto;padding:28px 0 24px;scrollbar-width:none}
+.history-filters::-webkit-scrollbar{display:none}
+.history-filter{flex:0 0 auto;border:1px solid #222e29;background:#fff;color:#29352f;border-radius:999px;padding:11px 18px;font-weight:700;display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
+.history-filter.active{background:#0f7047;border-color:#0f7047;color:#fff}
+.filter-dot{width:10px;height:10px;border-radius:50%;display:inline-block;background:#9aa59f}
+.dot-plastic{background:#e5ad21}.dot-paper{background:#3e78de}.dot-organic{background:#24ae67}.dot-glass{background:#6b55cb}.dot-metal{background:#8e9893}
+.history-list{display:grid;gap:18px}
+.history-item{position:relative;background:#fff;border:1px solid #e1e7e3;border-radius:20px;padding:22px 22px 0 30px;overflow:hidden;box-shadow:0 8px 20px rgba(20,45,35,.05)}
+.history-item::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:#b5bdba}
+.history-item.plastic::before{background:#e5ad21}
+.history-item.paper::before{background:#3e78de}
+.history-item.organic::before{background:#24ae67}
+.history-item.glass::before{background:#6b55cb}
+.history-item.metal::before{background:#8e9893}
+.history-main{display:flex;justify-content:space-between;gap:18px;align-items:flex-start}
+.history-material{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;color:#27332e}
+.history-location{font-size:28px;line-height:1.15;font-weight:800;color:#111815;margin:13px 0 18px}
+.history-quantity{background:#eeeafc;color:#3f3a67;padding:9px 13px;border-radius:8px;font-size:19px;font-weight:800;white-space:nowrap}
+.history-meta{border-top:1px solid #e0e5e2;padding:16px 0 18px;display:flex;align-items:center;justify-content:space-between;gap:15px;color:#55645d}
+.history-date{display:flex;align-items:center;gap:8px;font-size:15px}
+.history-detail{border:0;background:transparent;color:#145c3e;font-weight:800;font-size:15px;padding:7px 0}
+.history-detail:hover{text-decoration:underline}
+@media(max-width:760px){
+  .history-head h3{font-size:27px}
+  .history-location{font-size:22px}
+  .history-item{padding-left:24px}
+  .history-main{gap:10px}
+  .history-quantity{font-size:17px}
+}
+.recycling{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.bin{border:1px solid var(--line);border-radius:14px;padding:17px;min-height:150px}.bin .emoji{font-size:36px}.bin strong{display:block;font-size:18px;margin-top:7px}.bin small{color:var(--muted);line-height:1.5}
+.bar-chart{height:280px;display:flex;align-items:flex-end;gap:18px;padding:18px 10px 8px;border-bottom:1px solid var(--line)}.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:7px;height:100%;justify-content:flex-end}.bar{width:72%;max-width:80px;border-radius:9px 9px 0 0;background:#2a9d65;min-height:10px;transition:.3s}.bar-col span{font-size:11px;color:var(--muted);text-align:center}.bar-value{font-weight:800;color:var(--dark)}
+.compare-card{text-align:center}.compare-card .num{font-size:38px;font-weight:900}.difference{font-size:20px;font-weight:800}.up{color:#1f8c52}.down{color:#c24444}
+.modal{display:none;position:fixed;inset:0;background:rgba(15,34,26,.45);z-index:20;padding:20px;align-items:center;justify-content:center}.modal.show{display:flex}.modal-box{max-width:600px;width:100%;background:#fff;border-radius:18px;padding:22px;box-shadow:0 25px 70px rgba(0,0,0,.2)}
+.toast{position:fixed;right:22px;bottom:22px;z-index:50;background:#123e2d;color:#fff;padding:13px 16px;border-radius:12px;box-shadow:var(--shadow);display:none}.toast.show{display:block}
+@media(max-width:980px){.sidebar{width:220px}.main{margin-left:220px;width:calc(100% - 220px)}.grid-4,.recycling{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.sidebar{position:relative;width:100%;height:auto}.app{display:block}.main{margin-left:0;width:100%}.nav{display:grid;grid-template-columns:repeat(2,1fr)}.nav-title{grid-column:1/-1}.topbar{position:relative}.grid-2,.grid-3,.grid-4,.recycling{grid-template-columns:1fr}.content{padding:18px}.hero{padding:23px}.hero-icon{display:none}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="brand">
+    <div class="logo">♻</div>
+    <div><h1>EcoComunidad</h1><small>MVP de gestión de residuos</small></div>
+  </div>
+  <div class="nav-title">Ciudadanía</div>
+  <nav class="nav">
+    <button class="active" data-view="inicio">🏠 Inicio</button>
+    <button data-view="reportar">📸 Reportar residuos</button>
+  </nav>
+</aside>
+<main class="main">
+  <div class="topbar">
+    <h2 id="pageTitle">Inicio</h2>
+    <span class="role">MVP · Datos locales</span>
+  </div>
+
+  <div class="content">
+
+    <section class="view active" id="view-inicio">
+      <div class="hero">
+        <div>
+          <h1>Una comunidad más limpia empieza con un reporte.</h1>
+          <p>Prototipo funcional para reportar puntos de residuos, consultar contaminación, hacer seguimiento y controlar la recolección de materiales.</p>
+          <div class="btn-row" style="margin-top:18px">
+            <button class="btn btn-primary" onclick="go('reportar')">Crear reporte</button>
+          </div>
+        </div>
+        <div class="hero-icon">🌎</div>
+      </div>
+      <div class="grid grid-4">
+        <div class="card kpi"><div><div style="color:var(--muted);font-size:12px">Reportes</div><div class="number" id="kpiReports">4</div></div><div class="icon">📍</div></div>
+        <div class="card kpi"><div><div style="color:var(--muted);font-size:12px">Pendientes</div><div class="number" id="kpiPending">2</div></div><div class="icon">⏳</div></div>
+        <div class="card kpi"><div><div style="color:var(--muted);font-size:12px">Residuos recolectados</div><div class="number" id="kpiKg">87.5 kg</div></div><div class="icon">🧺</div></div>
+        <div class="card kpi"><div><div style="color:var(--muted);font-size:12px">Próxima jornada</div><div class="number" style="font-size:18px">15 Sep</div></div><div class="icon">🧹</div></div>
+      </div>
+      <div class="grid grid-2" style="margin-top:18px">
+        <div class="card">
+          <h3>Flujo principal del ciudadano</h3>
+          <div class="list">
+            <div class="list-item"><span>1. Reporta un punto con foto</span><span>📸</span></div>
+            <div class="list-item"><span>2. Consulta el mapa</span><span>🗺️</span></div>
+            <div class="list-item"><span>3. Guarda tu código de seguimiento</span><span>🔐</span></div>
+            <div class="list-item"><span>4. Revisa el estado de la solicitud</span><span>✅</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Últimas actualizaciones</h3>
+          <div class="list" id="homeUpdates"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="view-reportar">
+      <div class="grid grid-2">
+        <div class="card">
+          <h3>📸 Reportar residuos</h3>
+          <p>Registra la ubicación y adjunta una fotografía del punto contaminado.</p>
+          <form id="reportForm">
+            <div class="field"><label>Ubicación *</label><input id="reportLocation" required placeholder="Ej. Calle 30 con Carrera 12"></div>
+            <div class="field"><label>Descripción</label><textarea id="reportDescription" placeholder="Describe brevemente qué está ocurriendo..."></textarea></div>
+            <div class="field"><label>Fotografía *</label><input id="reportPhoto" type="file" accept="image/*" required><img id="photoPreview" class="preview" style="display:none"></div>
+            <button class="btn btn-primary" type="submit">Enviar reporte</button>
+          </form>
+          <div id="reportResult"></div>
+        </div>
+        <div class="card">
+          <h3>Criterio de aceptación</h3>
+          <div class="note">Al registrar la ubicación y la fotografía, el prototipo confirma el envío y genera un código de seguimiento.</div>
+          <h3 style="margin-top:18px">Ejemplo</h3>
+          <p><strong>Ubicación:</strong> Calle 45 # 8-20</p>
+          <p><strong>Descripción:</strong> Acumulación de bolsas y residuos orgánicos.</p>
+          <p><strong>Estado inicial:</strong> Pendiente</p>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</main>
+</div>
+<div class="toast" id="toast">Acción realizada</div>
+
+<script>
+const reports = [
+  {code:"ECO-2026-001",location:"Calle 30 con Carrera 12",description:"Bolsas de basura acumuladas junto al andén.",date:"2026-08-21",status:"Pendiente",updated:"2026-08-21"},
+  {code:"ECO-2026-002",location:"Carrera 8 # 41-15",description:"Residuos de construcción en zona peatonal.",date:"2026-08-22",status:"En atención",updated:"2026-08-25"},
+  {code:"ECO-2026-003",location:"Parque Central",description:"Acumulación de botellas y empaques.",date:"2026-08-18",status:"Solucionado",updated:"2026-08-24"},
+  {code:"ECO-2026-004",location:"Calle 52 # 16-08",description:"Residuos orgánicos cerca de un punto de recolección.",date:"2026-08-27",status:"Pendiente",updated:"2026-08-27"}
+];
+
+const titles = {
+  inicio:"Inicio", reportar:"Reportar residuos"
+};
+
+function go(view){
+  document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+  document.querySelector("#view-"+view).classList.add("active");
+  document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===view));
+  document.getElementById("pageTitle").textContent=titles[view];
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+document.querySelectorAll(".nav button").forEach(btn=>btn.addEventListener("click",()=>go(btn.dataset.view)));
+
+const photoInput = document.getElementById("reportPhoto");
+photoInput.addEventListener("change", e=>{
+  const f=e.target.files[0]; const img=document.getElementById("photoPreview");
+  if(!f){img.style.display="none";return;}
+  img.src=URL.createObjectURL(f); img.style.display="block";
+});
+
+document.getElementById("reportForm").addEventListener("submit", e=>{
+  e.preventDefault();
+  const location=document.getElementById("reportLocation").value.trim();
+  const description=document.getElementById("reportDescription").value.trim() || "Reporte ciudadano de acumulación de residuos.";
+  const file=document.getElementById("reportPhoto").files[0];
+  const code="ECO-2026-"+String(reports.length+1).padStart(3,"0");
+  const today=new Date().toISOString().slice(0,10);
+  reports.push({code,location,description,date:today,status:"Pendiente",updated:today,photo:file?URL.createObjectURL(file):null});
+  document.getElementById("reportResult").innerHTML=`<div class="alert alert-success">✅ Reporte enviado correctamente. Tu código de seguimiento es <strong>${code}</strong>.</div>`;
+  document.getElementById("reportForm").reset();
+  document.getElementById("photoPreview").style.display="none";
+  updateHome();
+  showToast("Reporte registrado correctamente");
+});
+
+function statusBadge(s){
+  const cls=s==="Pendiente"?"pending":s==="En atención"?"progress":"done";
+  return `<span class="badge ${cls}">${s}</span>`;
+}
+
+function updateHome(){
+  const pending=reports.filter(r=>r.status==="Pendiente").length;
+  document.getElementById("kpiReports").textContent=reports.length;
+  document.getElementById("kpiPending").textContent=pending;
+  document.getElementById("homeUpdates").innerHTML=reports.slice().reverse().slice(0,4).map(r=>`<div class="list-item"><span><strong>${r.code}</strong><div style="font-size:12px;color:var(--muted)">${r.location}</div></span>${statusBadge(r.status)}</div>`).join("");
+}
+
+function showToast(msg){
+  const t=document.getElementById("toast"); t.textContent=msg;t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"),2200);
+}
+
+updateHome();
+</script>
+</body>
+</html>
